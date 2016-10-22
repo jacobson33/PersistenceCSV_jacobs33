@@ -10,6 +10,7 @@ namespace PersistenceCSV_jacobs33
     {
         static void Main(string[] args)
         {
+            Controller controller = new Controller();
         }
     }
 }
