@@ -1,5 +1,20 @@
-﻿Hello
-World
-I
-See
-You
+﻿Band of Brothers|9.5|false|HBO
+Planet Earth|9.5|false|BBC
+Breaking Bad|9.5|false|AMC
+Game of Thrones|9.5|true|HBO
+The Wire|9.4|false|HBO
+Cosmos: A Spacetime Odyssey|9.3|false|NationalGeographic
+Rick and Morty|9.3|true|CartoonNetwork
+Cosmos: A Personal Voyage|9.3|false|PBS
+The Sopranos|9.2|false|HBO
+Sherlock|9.2|true|BBC
+The World at War|9.2|false|ITV
+The Civil War|9.3|false|PBS
+Life|9.2|false|BBC
+Avatar: The Last Airbender|9.2|false|Nickelodeon
+Last Week Tonight with John Oliver|9.1|true|HBO
+Firefly|9.1|false|Fox
+Human Planet|9.1|false|BBC
+True Detective|9.1|true|HBO
+Dekalog|9.1|false|Other
+The Twilight Zone|9.0|false|CBS

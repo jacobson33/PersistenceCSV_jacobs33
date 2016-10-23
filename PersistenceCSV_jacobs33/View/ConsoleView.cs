@@ -51,21 +51,20 @@ namespace PersistenceCSV_jacobs33
             _title = "Persistence by Taylor Jacobson";
             Console.Title = _title;
         }
-
+        
         /// <summary>
-        /// Reset and clear console
+        /// Return keypress
         /// </summary>
-        public void ResetConsole()
+        /// <returns>ConsoleKey</returns>
+        public ConsoleKey GetKeyPress()
         {
-            Console.Clear();
-            Console.CursorVisible = false;
-            Console.SetCursorPosition(1, 1);
+            return Console.ReadKey(true).Key;
         }
 
         /// <summary>
         /// Display menu
         /// </summary>
-        /// <param name="title">Menu title</param>
+        /// <param name="title"></param>
         public void DisplayMenu(string title)
         {
             //variables
@@ -117,8 +116,6 @@ namespace PersistenceCSV_jacobs33
                 Console.SetCursorPosition(left, top);
                 Console.Write(item);
             }
-
-
         }
 
         /// <summary>
@@ -127,8 +124,303 @@ namespace PersistenceCSV_jacobs33
         public void DisplayExitMessage()
         {
             ResetConsole();
-            Console.WriteLine("Goodbye...");
+            Console.SetCursorPosition(_WIDTH / 2 - 6, _HEIGHT / 2);
+            Console.Write("Goodbye...");
         }
+
+        /// <summary>
+        /// Display all records
+        /// </summary>
+        /// <param name="records">List of TVShow</param>
+        public void DisplayAllRecords(List<TVShow> records)
+        {
+            //header
+            HelperHeader("All Records:");
+            Console.WriteLine("\t\tTitle                               Network         Rating  Running\n");
+
+            //create lines
+            foreach (TVShow item in records)
+            {
+                Console.Write("\t\t>");
+                Console.Write(HelperBuildString(item.Name, 35));
+                Console.Write(HelperBuildString(item.Network.ToString(), 16));
+                Console.Write(HelperBuildString(String.Format("{0:f1}", item.Rating), 8));
+                Console.Write(HelperBuildString(item.Running ? "Yes" : "No", 7));
+                Console.Write("\n");
+            }
+
+            //pause
+            HelperPause();
+        }
+
+        /// <summary>
+        /// Draw records with selected record in red
+        /// </summary>
+        /// <param name="records">List of records</param>
+        /// <param name="selection">Index of selected item</param>
+        /// <param name="title">Title of menu</param>
+        public void SelectRecord(List<TVShow> records, int selection, string title)
+        {
+            //header
+            Console.ForegroundColor = ConsoleColor.White;
+            HelperHeader(title + ":");
+            Console.WriteLine("\t\tTitle                               Network         Rating  Running\n");
+
+            //create lines
+            foreach (TVShow item in records)
+            {
+                if (records.IndexOf(item) == selection)
+                    Console.ForegroundColor = ConsoleColor.Red;
+                else
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                Console.Write("\t\t>");
+                Console.Write(HelperBuildString(item.Name, 35));
+                Console.Write(HelperBuildString(item.Network.ToString(), 16));
+                Console.Write(HelperBuildString(String.Format("{0:f1}", item.Rating), 8));
+                Console.Write(HelperBuildString(item.Running ? "Yes" : "No", 7));
+                Console.Write("\n");
+            }
+        }
+
+        /// <summary>
+        /// Display error message
+        /// </summary>
+        /// <param name="message">Message</param>
+        public void DisplayError(string message)
+        {
+            int len = message.Length;
+            int left = (_WIDTH - len) / 2;
+
+            ResetConsole();
+
+            //display error
+            Console.SetCursorPosition(left, _HEIGHT / 2);
+            Console.WriteLine(message);
+
+            HelperPause();
+        }
+        #endregion
+
+        #region #ADD/UPDATE RECORDS
+
+        /// <summary>
+        /// Display for Add or Update a Record
+        /// </summary>
+        /// <param name="title">Title of menu</param>
+        /// <returns>TVShow Object</returns>
+        public TVShow DisplayAddUpdateRecord(string title)
+        {
+            ResetConsole();
+            Console.CursorVisible = true;
+
+            //display header
+            HelperHeader(title);
+
+            //get information
+            string name = DisplayAddRecordName();
+            double rating = DisplayAddRecordRating();
+            bool running = DisplayAddRecordRunning();
+            TVShow.TVNetwork network = DisplayAddRecordNetwork();
+
+            return new TVShow(name, running, rating, network);
+        }
+
+        /// <summary>
+        /// Get name
+        /// </summary>
+        /// <returns>String</returns>
+        private string DisplayAddRecordName()
+        {
+            Console.Write("\n\t\tTV Show Name: ");            
+            return Console.ReadLine();
+        }
+
+        /// <summary>
+        /// Get rating
+        /// </summary>
+        /// <returns>Double</returns>
+        private double DisplayAddRecordRating()
+        {
+            double rating = 0.0;
+            string response = "";
+
+            Console.Write("\n\t\tRating (out of 10): ");
+
+            //get position for input
+            int top = Console.CursorTop;
+            int left = Console.CursorLeft;
+
+            response = Console.ReadLine();
+            while (!double.TryParse(response, out rating) || rating > 10.0 || rating < 0.0)
+            {
+                HelperEraseScreen(left, top, response.Length);
+                response = Console.ReadLine();
+            }
+
+            return rating;
+        }
+
+        /// <summary>
+        /// Get show status
+        /// </summary>
+        /// <returns>Boolean</returns>
+        private bool DisplayAddRecordRunning()
+        {
+            bool rated = false;
+            bool rating = false;
+
+            Console.Write("\n\t\tRunning? (yes / no): ");
+
+            //get position for input
+            int top = Console.CursorTop;
+            int left = Console.CursorLeft;
+
+            while (!rated)
+            {
+                string response = Console.ReadLine().ToLower();
+
+                if (response == "y" || response == "yes" || response == "true")
+                {
+                    rated = true;
+                    rating = true;
+                }
+                else if (response == "n" || response == "no" || response == "false")
+                {
+                    rated = true;
+                    rating = false;
+                }
+                else
+                {
+                    HelperEraseScreen(left, top, response.Length);
+                }
+            }
+
+            return rating;
+        }
+
+        /// <summary>
+        /// Get show network
+        /// </summary>
+        /// <returns>Enum TVShow.TVNetwork</returns>
+        private TVShow.TVNetwork DisplayAddRecordNetwork()
+        {
+            TVShow.TVNetwork network;
+            Console.Write("\n\t\tNetwork Name: ");
+
+            string response = Console.ReadLine();
+
+            //Choose other if not in list
+            try { network = (TVShow.TVNetwork)Enum.Parse(typeof(TVShow.TVNetwork), response, true); }
+            catch (Exception) { network = TVShow.TVNetwork.Other; }
+
+            return network;
+        }
+
+        #endregion 
+
+        #region HELPERS
+
+        /// <summary>
+        /// Create a header
+        /// </summary>
+        /// <param name="title">Header Title</param>
+        private void HelperHeader(string title)
+        {
+            Console.SetCursorPosition(1, 4);
+            Console.WriteLine("\t\t{0}", title);
+
+            string line = "";
+            for (int i = 0; i < _WIDTH - 32; i++)
+            {
+                line += "_";
+            }
+
+            Console.WriteLine($"\t\t{line}\n");
+
+        }
+
+        /// <summary>
+        /// Press any key to continue
+        /// </summary>
+        private void HelperPause()
+        {
+            Console.SetCursorPosition(33, _HEIGHT - 5);
+            Console.Write("Press any key to continue...");
+            Console.ReadKey(true);
+        }
+
+        /// <summary>
+        /// Erase everything on screen after current position
+        /// </summary>
+        private void HelperEraseScreen(int left, int top, int length)
+        {
+            //set cursor to start of input
+            Console.SetCursorPosition(left, top);
+
+            //erase all text
+            Console.WriteLine(new string(' ', length));
+
+            //set cursor position again
+            Console.SetCursorPosition(left, top);
+        }
+
+        /// <summary>
+        /// Build a string into another string for display purposes
+        /// </summary>
+        /// <param name="text">Text that will be displayed</param>
+        /// <param name="mask">Size of area string will fit into</param>
+        private string HelperBuildString(string text, int maskLength)
+        {
+            int textLen = text.Length;
+
+            if (textLen >= maskLength)
+            {
+                text = text.Substring(0, maskLength - 4);
+                text += @"... ";
+            }
+            else
+            {
+                for (int i = 0; i < maskLength - textLen; i++)
+                {
+                    text += @" ";
+                }
+            }
+
+            return text;
+        }
+
+        /// <summary>
+        /// Confirm changes
+        /// </summary>
+        /// <returns>Boolean</returns>
+        public bool ConfirmChanges()
+        {
+            Console.SetCursorPosition(15, _HEIGHT - 5);
+            Console.Write("Are you sure you wish to complete this action? (YES/NO) : ");
+            Console.CursorVisible = true;
+
+            //handle input
+            string confirm = Console.ReadLine().ToLower();
+
+            if (confirm == "yes" || confirm == "y")
+                return true;
+            else
+                return false;
+        }
+
+        /// <summary>
+        /// Reset cursor and clear console
+        /// </summary>
+        public void ResetConsole()
+        {
+            Console.Clear();
+            Console.CursorVisible = false;
+            Console.SetCursorPosition(1, 1);
+            Console.ResetColor();
+        }
+
+
         #endregion
     }
 }
